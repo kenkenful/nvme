@@ -52,8 +52,6 @@
 
 
 sp_DRIVER_INITIALIZE DriverEntry;
-HW_BUILDIO NVMeBuildIo;
-HW_STARTIO NVMeStartIo;
 HW_RESET_BUS NVMeResetBus;
 HW_ADAPTER_CONTROL NVMeAdapterControl;
 HW_PASSIVE_INITIALIZE_ROUTINE NVMePassiveInitialize;
@@ -467,7 +465,7 @@ typedef struct _START_STATE
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pResetSrb;
 #else
-    PSCSI_REQUEST_BLOCK pResetSrb;
+    PSTORAGE_REQUEST_BLOCK pResetSrb;
 #endif
 
     /*
@@ -1093,7 +1091,7 @@ typedef struct _nvme_device_extension
 	/* Host memory buffer enable */
 	BOOLEAN						HMBenabled;
 	/* Current handling SRB (for disable HMB callback) */
-	PSCSI_REQUEST_BLOCK			pCurrentSrb;
+	PSTORAGE_REQUEST_BLOCK			pCurrentSrb;
 
 } NVME_DEVICE_EXTENSION, *PNVME_DEVICE_EXTENSION;
 
@@ -1116,7 +1114,7 @@ typedef struct _nvme_srb_extension
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK       pSrb;
 #else
-    PSCSI_REQUEST_BLOCK          pSrb;
+    PSTORAGE_REQUEST_BLOCK          pSrb;
 #endif
 
     /* Is this an ADMIN command or an NVM command */
@@ -1263,7 +1261,7 @@ BOOLEAN NVMeResetController(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    __in PSCSI_REQUEST_BLOCK pSrb
+    __in PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 );
 
@@ -1485,7 +1483,7 @@ BOOLEAN NVMeRunningStartAttempt(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pResetSrb
 #else
-    PSCSI_REQUEST_BLOCK pResetSrb
+    PSTORAGE_REQUEST_BLOCK pResetSrb
 #endif
 );
 
@@ -1585,12 +1583,12 @@ BOOLEAN NVMeInitialize(
 
 BOOLEAN NVMeStartIo(
     __in PVOID AdapterExtension,
-    __in PSCSI_REQUEST_BLOCK Srb
+    __in PSTORAGE_REQUEST_BLOCK Srb
 );
 
 BOOLEAN NVMeBuildIo(
     __in PVOID AdapterExtension,
-    __in PSCSI_REQUEST_BLOCK Srb
+    __in PSTORAGE_REQUEST_BLOCK Srb
 );
 
 void NVMeStartIoProcessIoctl(
@@ -1598,7 +1596,7 @@ void NVMeStartIoProcessIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    __in PSCSI_REQUEST_BLOCK pSrb
+    __in PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 );
 
@@ -1640,7 +1638,7 @@ VOID NVMeInitSrbExtension(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 );
 
@@ -1670,7 +1668,7 @@ BOOLEAN NVMeIoctlFormatNVM(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 );
@@ -1681,7 +1679,7 @@ BOOLEAN NVMeIoctlNamespaceMgmt(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-	PSCSI_REQUEST_BLOCK pSrb,
+	PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 );
@@ -1691,7 +1689,7 @@ BOOLEAN NVMeIoctlNamespaceAttachment(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-	PSCSI_REQUEST_BLOCK pSrb,
+	PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 );
@@ -1701,7 +1699,7 @@ BOOLEAN NVMeProcessIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 );
 
@@ -1710,7 +1708,7 @@ BOOLEAN NVMeProcessPublicIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 );
 
@@ -1719,7 +1717,7 @@ BOOLEAN NVMeProcessPrivateIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 );
 
@@ -1790,16 +1788,11 @@ VOID IO_StorPortNotification(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    __in PSCSI_REQUEST_BLOCK pSrb
+    __in PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 );
 #else
 #define IO_StorPortNotification StorPortNotification
 #endif
-
-#ifndef DBG
-VOID WppCleanupRoutine(PVOID arg1);
-#endif
-
 
 #endif /* __NVME_STD_H__ */

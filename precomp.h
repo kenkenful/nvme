@@ -46,6 +46,7 @@
  */
 
 #include "ntddk.h"
+#pragma warning(disable:4201)
 #include "ntddscsi.h"
 #include "ntdddisk.h"
 #include "stdlib.h"
@@ -59,7 +60,6 @@
 #include <ata.h>
 #include "nvmeMofData.h"
 #include "nvme.h"
-#include "nvmeReg.h"
 #include "nvmeIoctl.h"
 #include "nvmeStd.h"
 #include "nvmePwrMgmt.h"

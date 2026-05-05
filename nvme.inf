@@ -8,8 +8,9 @@ Provider=%COMM%
 ClassGUID={4D36E97B-E325-11CE-BFC1-08002BE10318}
 Class=SCSIAdapter
 DriverVer=20/11/2017, 1.5.1200.00
-;CatalogFile.NTAMD64 = nvme64.cat
-;CatalogFile.NTx86   = nvme86.cat
+CatalogFile.NTAMD64 = nvme64.cat
+CatalogFile.NTx86   = nvme86.cat
+PnpLockDown=1
 
 [PackageInfo]
 Name=NVMe

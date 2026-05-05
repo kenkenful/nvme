@@ -46,9 +46,6 @@
  */
 
 #include "precomp.h"
-#ifndef DBG
-#include "nvmeinit.tmh"
-#endif
 
 /*******************************************************************************
  * NVMeGetPhysAddr

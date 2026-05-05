@@ -3158,4 +3158,102 @@ typedef struct _HOST_MEMORY_BUFFER_Attributes {
 *PHOST_MEMORY_BUFFER_Attributes;
 
 
+
+
+#define NVME_DB_START                  0x1000
+#define NVME_AQA_CQS_LSB               16
+#define NVME_CC_NVM_CMD                0
+#define NVME_MEM_PAGE_SIZE_SHIFT       12
+#define NVME_CC_ROUND_ROBIN            0
+#define NVME_CC_SHUTDOWN_NONE          0
+#define NVME_CC_IOSQES                 6
+#define NVME_CC_IOCQES                 4
+#define IVMS                           INTMS
+
+typedef union _NVMe_VERSION
+{
+    struct
+    {
+        UCHAR  Reserved;
+        UCHAR  MNR;
+        USHORT MJR;
+    };
+    ULONG AsUlong;
+} NVMe_VERSION, *PNVMe_VERSION;typedef union _NVMe_CONTROLLER_CAPABILITIES
+{
+    struct
+    {
+        ULONGLONG MQES      : 16;
+        ULONGLONG CQR       : 1;
+        ULONGLONG AMS       : 2;
+        ULONGLONG Reserved0 : 5;
+        ULONGLONG TO        : 8;
+        ULONGLONG DSTRD     : 4;
+        ULONGLONG NSSRS     : 1;
+        ULONGLONG CSS       : 8;
+        ULONGLONG Reserved1 : 3;
+        ULONGLONG MPSMIN    : 4;
+        ULONGLONG MPSMAX    : 4;
+        ULONGLONG Reserved2 : 8;
+    };
+    struct
+    {
+        ULONG LowPart;
+        ULONG HighPart;
+    };
+    ULONGLONG AsUlonglong;
+} NVMe_CONTROLLER_CAPABILITIES, *PNVMe_CONTROLLER_CAPABILITIES;
+
+typedef union _NVMe_CONTROLLER_CONFIGURATION
+{
+    struct
+    {
+        ULONG EN        : 1;
+        ULONG Reserved0 : 3;
+        ULONG CSS       : 3;
+        ULONG MPS       : 4;
+        ULONG AMS       : 3;
+        ULONG SHN       : 2;
+        ULONG IOSQES    : 4;
+        ULONG IOCQES    : 4;
+        ULONG Reserved1 : 8;
+    };
+    ULONG AsUlong;
+} NVMe_CONTROLLER_CONFIGURATION, *PNVMe_CONTROLLER_CONFIGURATION;
+
+typedef union _NVMe_CONTROLLER_STATUS
+{
+    struct
+    {
+        ULONG RDY      : 1;
+        ULONG CFS      : 1;
+        ULONG SHST     : 2;
+        ULONG NSSRO    : 1;
+        ULONG PP       : 1;
+        ULONG Reserved : 26;
+    };
+    ULONG AsUlong;
+} NVMe_CONTROLLER_STATUS, *PNVMe_CONTROLLER_STATUS;
+
+typedef struct _NVMe_QUEUE_Y_DOORBELL
+{
+    ULONG QHT;
+} NVMe_QUEUE_Y_DOORBELL, *PNVMe_QUEUE_Y_DOORBELL;
+
+typedef struct _NVMe_CONTROLLER_REGISTERS
+{
+    NVMe_CONTROLLER_CAPABILITIES CAP;
+    ULONG VS;
+    ULONG INTMS;
+    ULONG INTMC;
+    NVMe_CONTROLLER_CONFIGURATION CC;
+    ULONG Reserved0;
+    NVMe_CONTROLLER_STATUS CSTS;
+    ULONG NSSR;
+    ULONG AQA;
+    PHYSICAL_ADDRESS ASQ;
+    PHYSICAL_ADDRESS ACQ;
+    UCHAR Reserved1[0x1000 - 0x38];
+    NVMe_QUEUE_Y_DOORBELL IODB[1];
+} NVMe_CONTROLLER_REGISTERS, *PNVMe_CONTROLLER_REGISTERS;
 #endif /* __NVME_H__ */

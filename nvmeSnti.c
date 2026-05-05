@@ -46,9 +46,6 @@
  */
 
 #include "precomp.h"
-#ifndef DBG
-#include "nvmeSnti.tmh"
-#endif
 
 HW_INITIALIZATION_DATA gHwInitializationData;
 
@@ -359,7 +356,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -612,7 +609,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateInquiry(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -739,7 +736,7 @@ VOID SntiTranslateSupportedVpdPages(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -804,7 +801,7 @@ VOID SntiTranslateUnitSerialPage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_LUN_EXTENSION pLunExt
 )
@@ -966,7 +963,7 @@ VOID SntiTranslateDeviceIdentificationPage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2046,7 +2043,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateExtendedInquiryDataPage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2179,7 +2176,7 @@ VOID SntiTranslateStandardInquiryPage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2288,7 +2285,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReportLuns(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2444,7 +2441,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2544,7 +2541,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity10(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PUCHAR pResponseBuffer,
     PNVME_LUN_EXTENSION pLunExt
@@ -2655,7 +2652,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity16(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PUCHAR pResponseBuffer,
     PNVME_LUN_EXTENSION pLunExt
@@ -2794,7 +2791,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWrite(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2819,7 +2816,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWrite(
     }
 
     pSgl = StorPortGetScatterGatherList(pSrbExt->pNvmeDevExt, 
-                                       (PSCSI_REQUEST_BLOCK)pSrb);
+                                       (PSTORAGE_REQUEST_BLOCK)pSrb);
 
     /* Set the SRB status to pending - controller communication necessary */
     pSrb->SrbStatus = SRB_STATUS_PENDING;
@@ -2896,7 +2893,7 @@ SNTI_STATUS SntiTranslateWrite6(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT32 lba = 0;
@@ -2956,7 +2953,7 @@ SNTI_STATUS SntiTranslateWrite10(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT32 lba = 0;
@@ -3016,7 +3013,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWrite12(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT32 lba = 0;
@@ -3076,7 +3073,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWrite16(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT64 lba = 0;
@@ -3135,7 +3132,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRead(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -3160,7 +3157,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRead(
     }
 
     pSgl = StorPortGetScatterGatherList(pSrbExt->pNvmeDevExt, 
-                                       (PSCSI_REQUEST_BLOCK)pSrb);
+                                       (PSTORAGE_REQUEST_BLOCK)pSrb);
 
     /* Set the SRB status to pending - controller communication necessary */
     pSrb->SrbStatus = SRB_STATUS_PENDING;
@@ -3235,7 +3232,7 @@ SNTI_STATUS SntiTranslateRead6(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT32 lba = 0;
@@ -3295,7 +3292,7 @@ SNTI_STATUS SntiTranslateRead10(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT32 lba = 0;
@@ -3356,7 +3353,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRead12(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT32 lba = 0;
@@ -3419,7 +3416,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRead16(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT64 lba = 0;
@@ -3481,7 +3478,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRequestSense(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -3601,7 +3598,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateSecurityProtocol(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -3687,7 +3684,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveIn(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
     )
 {
@@ -3811,7 +3808,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveOut(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
     )
 {
@@ -4084,7 +4081,7 @@ SNTI_TRANSLATION_STATUS SntiBuildPersReserveRegisterCmd(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_SRB_EXTENSION pSrbExt,
     PNVME_LUN_EXTENSION pLunExt,
@@ -4190,7 +4187,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersReserveInResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
     )
 {
@@ -4513,7 +4510,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersReserveOutResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
     )
 {
@@ -4589,7 +4586,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateStartStopUnit(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -4686,7 +4683,7 @@ SNTI_TRANSLATION_STATUS SntiTransitionPowerState(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     UINT32 dword11 = 0;
@@ -5118,7 +5115,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWriteBuffer(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5229,7 +5226,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateSynchronizeCache(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5288,7 +5285,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateTestUnitReady(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5353,7 +5350,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateFormatUnit(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5508,7 +5505,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateLogSense(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5675,7 +5672,7 @@ VOID SntiTranslateSupportedLogPages(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5728,7 +5725,7 @@ VOID SntiTranslateTemperature(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5790,7 +5787,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeSense(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     BOOLEAN supportsVwc
 )
@@ -6005,7 +6002,7 @@ VOID SntiCreateControlModePage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
@@ -6108,7 +6105,7 @@ VOID SntiHardCodeCacheModePage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
@@ -6203,7 +6200,7 @@ VOID SntiCreatePowerConditionControlModePage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
@@ -6297,7 +6294,7 @@ VOID SntiCreateInformationalExceptionsControlModePage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
@@ -6395,7 +6392,7 @@ SNTI_TRANSLATION_STATUS SntiReturnAllModePages(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
@@ -6576,7 +6573,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeSelect(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     BOOLEAN supportsVwc
 )
@@ -6685,7 +6682,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeData(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     PUCHAR pModePagePtr = NULL;
     UINT32 numBlockDesc = 0;
@@ -7101,7 +7098,7 @@ SNTI_STATUS SntiValidateLbaAndLength(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     SNTI_STATUS status = SNTI_SUCCESS;
     UINT32 lbaSize = 0;
@@ -7179,7 +7176,7 @@ BOOLEAN SntiSetScsiSenseData(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     UCHAR scsiStatus,
     UCHAR senseKey,
@@ -7262,7 +7259,7 @@ SNTI_STATUS GetLunExtension(
     TargetId = SrbGetTargetId((void*)pSrb);
     Lun = SrbGetLun((void*)pSrb);
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
     ASSERT(pDevExt != NULL);
     ASSERT(pSrb != NULL);
     PathId = pSrb->PathId;
@@ -7332,7 +7329,7 @@ VOID SntiBuildGetFeaturesCmd(
     } else {
         /* PRP Entry/List - Use the SGL from the original command */
         pSgl = StorPortGetScatterGatherList(pDevExt, 
-                                           (PSCSI_REQUEST_BLOCK)pSrbExt->pSrb); 
+                                           (PSTORAGE_REQUEST_BLOCK)pSrbExt->pSrb); 
         ASSERT(pSgl != NULL);
 
         SntiTranslateSglToPrp(pSrbExt, pSgl);
@@ -7393,7 +7390,7 @@ VOID SntiBuildSetFeaturesCmd(
     } else {
         /* PRP Entry/List - Use the SGL from the original command */
         pSgl = StorPortGetScatterGatherList(pDevExt, 
-                                           (PSCSI_REQUEST_BLOCK)pSrbExt->pSrb);
+                                           (PSTORAGE_REQUEST_BLOCK)pSrbExt->pSrb);
         ASSERT(pSgl != NULL);
 
         SntiTranslateSglToPrp(pSrbExt, pSgl);
@@ -7505,7 +7502,7 @@ VOID SntiBuildGetLogPageCmd(
     } else {
         /* Use the SGL from the original command for PRP Entries/List */
         pSgl = StorPortGetScatterGatherList(pDevExt, 
-                                           (PSCSI_REQUEST_BLOCK)pSrbExt->pSrb);
+                                           (PSTORAGE_REQUEST_BLOCK)pSrbExt->pSrb);
 
         if (pSgl != NULL) {
             #ifdef DEBUG_CHECK
@@ -7576,7 +7573,7 @@ VOID SntiBuildFirmwareImageDownloadCmd(
 
     /* PRP Entry/List - Use the SGL from the original command */
     pSgl = StorPortGetScatterGatherList(pDevExt, 
-                                       (PSCSI_REQUEST_BLOCK)pSrbExt->pSrb);
+                                       (PSTORAGE_REQUEST_BLOCK)pSrbExt->pSrb);
     ASSERT(pSgl != NULL);
 
     #define DEBUG_CHECK
@@ -7746,7 +7743,7 @@ VOID SntiBuildSecuritySendReceiveCmd(
 
     /* PRP Entry/List */
     pSgl = StorPortGetScatterGatherList(pSrbExt->pNvmeDevExt, 
-                                       (PSCSI_REQUEST_BLOCK)pSrbExt->pSrb);
+                                       (PSTORAGE_REQUEST_BLOCK)pSrbExt->pSrb);
     ASSERT(pSgl != NULL);
 
     SntiTranslateSglToPrp(pSrbExt, pSgl);
@@ -7791,7 +7788,7 @@ BOOLEAN SntiCompletionCallbackRoutine(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry = pSrbExt->pCplEntry;
     UINT8 statusCodeType;
@@ -7914,7 +7911,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateLogSenseResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry
 )
@@ -7971,7 +7968,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateInformationalExceptionsResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     UINT16 allocLength
 )
@@ -8062,7 +8059,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateTemperatureResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry,
     UINT16 allocLength
@@ -8170,7 +8167,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeSenseResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry
 )
@@ -8377,7 +8374,7 @@ VOID SntiTranslateCachingModePageResponse(
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
     UCHAR scsiStatus = 0;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT32 volatileWriteCache = 0;
     UINT16 modeDataLength = 0;
@@ -8475,7 +8472,7 @@ VOID SntiTranslateReturnAllModePagesResponse(
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
     UCHAR scsiStatus = 0;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT32 volatileWriteCache = 0;
 
@@ -8531,7 +8528,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateStartStopUnitResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -8620,7 +8617,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWriteBufferResponse(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -8710,7 +8707,7 @@ BOOLEAN SntiMapCompletionStatus(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     UINT8 statusCodeType = (UINT8)pSrbExt->pCplEntry->DW3.SF.SCT;
     UINT8 statusCode = (UINT8)pSrbExt->pCplEntry->DW3.SF.SC;
@@ -8780,7 +8777,7 @@ VOID SntiMapGenericCommandStatus(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     UINT8 genericCommandStatus
 )
@@ -8836,7 +8833,7 @@ VOID SntiMapCommandSpecificStatus(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     UINT8 commandSpecificStatus
 )
@@ -8892,7 +8889,7 @@ VOID SntiMapMediaErrors(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     UINT8 mediaError
 )
@@ -8938,7 +8935,7 @@ VOID SntiMapInternalErrorStatus(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     SNTI_STATUS status
 )
@@ -9095,7 +9092,7 @@ SNTI_TRANSLATION_STATUS SntiValidateNacaSetting(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
     )
 {

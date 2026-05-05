@@ -46,9 +46,6 @@
  */
 
 #include "precomp.h"
-#ifndef DBG
-#include "nvmeWmi.tmh"
-#endif
 #include <scsiwmi.h>
 
 
@@ -109,7 +106,7 @@ __in struct _nvme_device_extension* pDevExtension,
 #if (NTDDI_VERSION > NTDDI_WIN7)
 __in PSTORAGE_REQUEST_BLOCK pSrb
 #else
-__in PSCSI_REQUEST_BLOCK pSrb
+__in PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -148,14 +145,11 @@ __in PSCSI_REQUEST_BLOCK pSrb
             pSrbWmi->WMISubFunction, 
             pSrbWmi->WMIFlags);
 
-        pending = ScsiPortWmiDispatchFunction(
-            &pDevExtension->WmiLibContext,
-            pSrbWmi->WMISubFunction,
-            pDevExtension,
-            pRequestContext,
-            pSrbWmi->DataPath,
-            GET_DATA_LENGTH(pSrb),
-            GET_DATA_BUFFER(pSrb));
+        UNREFERENCED_PARAMETER(pDevExtension);
+        UNREFERENCED_PARAMETER(pRequestContext);
+        pending = FALSE;
+        SET_DATA_LENGTH(pSrb, 0);
+        pSrb->SrbStatus = SRB_STATUS_INVALID_REQUEST;
     } else {
         SET_DATA_LENGTH(pSrb, 0);
         pSrb->SrbStatus = SRB_STATUS_ERROR;
@@ -170,8 +164,8 @@ __in PSCSI_REQUEST_BLOCK pSrb
 
         StorPortDebugPrint(INFO, "Error: Wmi cannot pend requests\n");
     } else {
-        pSrb->SrbStatus = ScsiPortWmiGetReturnStatus(pRequestContext);
-        SET_DATA_LENGTH(pSrb, ScsiPortWmiGetReturnSize(pRequestContext));
+        pSrb->SrbStatus = SRB_STATUS_INVALID_REQUEST;
+        SET_DATA_LENGTH(pSrb, 0);
     }
 
     return;
@@ -397,9 +391,9 @@ __in ULONG                    SizeNeeded
         //
         // Request completed successfully or there was an error.
         //
-        ScsiPortWmiPostProcess(pDispatchContext, Status, SizeNeeded);
-
-        pSrb->SrbStatus = ScsiPortWmiGetReturnStatus(pDispatchContext);
-        pSrb->DataTransferLength = ScsiPortWmiGetReturnSize(pDispatchContext);
+        pDispatchContext->ReturnStatus = Status;
+        pDispatchContext->ReturnSize = SizeNeeded;
+        pSrb->SrbStatus = Status;
+        pSrb->DataTransferLength = SizeNeeded;
     }
 } /* SpUpdateWmiRequest */

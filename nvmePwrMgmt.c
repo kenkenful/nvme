@@ -46,9 +46,6 @@
  */
 
 #include "precomp.h"
-#ifndef DBG
-#include "nvmePwrMgmt.tmh"
-#endif
 
 /*******************************************************************************
  * NVMeAdapterControlPowerUp
@@ -140,7 +137,7 @@ BOOLEAN NVMeAdapterControlPowerDown(
  ******************************************************************************/
 BOOLEAN NVMePowerControl(
     IN PNVME_DEVICE_EXTENSION pAE,
-    IN PSCSI_REQUEST_BLOCK Srb
+    IN PSTORAGE_REQUEST_BLOCK Srb
 )
 {
     BOOLEAN status = FALSE;

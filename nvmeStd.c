@@ -46,15 +46,7 @@
  */
 
 #include "precomp.h"
-#ifndef DBG
-#include "nvmestd.tmh"
-#endif
 
-
-// Global variables
-#ifndef DBG
-PVOID TraceContext;
-#endif
 
 #ifdef HISTORY
 void TracePathSubmit(HISTORY_TAG tag, ULONG queueId, ULONG NSID,
@@ -131,10 +123,6 @@ ULONG DriverEntry(
 {
     HW_INITIALIZATION_DATA hwInitData = { 0 };
     ULONG Status = 0;
-#ifndef DBG
-    STORAGE_TRACE_INIT_INFO initInfo;
-#endif
-
     /* DbgBreakPoint(); */
 
     /* Set size of hardware initialization structure. */
@@ -174,31 +162,6 @@ ULONG DriverEntry(
                                 RegistryPath,
                                 &hwInitData,
                                 NULL );
-
-#ifndef DBG
-    // 
-    // Initialize storage tracing library
-    //
-    TraceContext = NULL;
-
-    memset(&initInfo, 0, sizeof(STORAGE_TRACE_INIT_INFO));
-    initInfo.Size = sizeof(STORAGE_TRACE_INIT_INFO);
-    initInfo.DriverObject = DriverObject;
-    initInfo.NumErrorLogRecords = 5;
-    initInfo.TraceCleanupRoutine = WppCleanupRoutine;
-    initInfo.TraceContext = NULL;
-
-    WPP_INIT_TRACING(DriverObject, RegistryPath, &initInfo);
-
-    //
-    // Save the traceContext 
-    // 
-    if (initInfo.TraceContext != NULL) {
-        TraceContext = initInfo.TraceContext;
-    }
-
-
-#endif
 
     StorPortDebugPrint(INFO, "StorPortInitialize returns Status(0x%x)\n", Status);
 
@@ -1112,7 +1075,7 @@ BOOLEAN NVMeIsReadWriteCmd(
  ******************************************************************************/
 BOOLEAN NVMeBuildIo(
     __in PVOID AdapterExtension,
-    __in PSCSI_REQUEST_BLOCK Srb
+    __in PSTORAGE_REQUEST_BLOCK Srb
 )
 {
     PNVME_DEVICE_EXTENSION pAdapterExtension =
@@ -1151,7 +1114,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                (PSCSI_REQUEST_BLOCK)Srb);
+                                (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
         StorPortDebugPrint(ERROR, "BuildIo: <Error> NO DEVICE\n");
         return FALSE;
@@ -1173,7 +1136,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                (PSCSI_REQUEST_BLOCK)Srb);
+                                (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
         return FALSE;
     }
@@ -1188,7 +1151,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                (PSCSI_REQUEST_BLOCK)Srb);
+                                (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
         return FALSE;
     }
@@ -1200,7 +1163,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                  (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                 (PSCSI_REQUEST_BLOCK)Srb);
+                                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             return TRUE;
 
@@ -1221,7 +1184,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                     (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                    (PSCSI_REQUEST_BLOCK)Srb);
+                                    (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             return FALSE;
         break;
@@ -1256,7 +1219,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 					(PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-					(PSCSI_REQUEST_BLOCK)Srb);
+					(PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 #if (NTDDI_VERSION > NTDDI_WIN7)
 			}
@@ -1347,7 +1310,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 						(PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-						(PSCSI_REQUEST_BLOCK)Srb);
+						(PSTORAGE_REQUEST_BLOCK)Srb);
 #endif			
 				}
             } else {
@@ -1357,7 +1320,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                         (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                        (PSCSI_REQUEST_BLOCK)Srb);
+                                        (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             }
 
@@ -1373,7 +1336,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                         (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                        (PSCSI_REQUEST_BLOCK)Srb);
+                                        (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
                 return FALSE;
             }
@@ -1382,7 +1345,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                  (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                 (PSCSI_REQUEST_BLOCK)Srb);
+                                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 
             /*
@@ -1394,7 +1357,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                           (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                          (PSCSI_REQUEST_BLOCK)Srb);
+                                          (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             if (ioctlStatus == IOCTL_COMPLETED) {
                 IO_StorPortNotification(RequestComplete, 
@@ -1402,7 +1365,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                         (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                        (PSCSI_REQUEST_BLOCK)Srb);
+                                        (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
                 return FALSE;
             }
@@ -1426,7 +1389,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 							(PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-							(PSCSI_REQUEST_BLOCK)Srb);
+							(PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 						return FALSE;
 					}
@@ -1440,7 +1403,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 							(PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-							(PSCSI_REQUEST_BLOCK)Srb);
+							(PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 						return FALSE;
 					}
@@ -1459,7 +1422,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                  (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                 (PSCSI_REQUEST_BLOCK)Srb);
+                                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 
             /* Perform SCSI to NVMe translation */
@@ -1467,7 +1430,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7) 
                                              (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                             (PSCSI_REQUEST_BLOCK)Srb);
+                                             (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 
             switch (sntiStatus) {
@@ -1482,7 +1445,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                             (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                            (PSCSI_REQUEST_BLOCK)Srb);
+                                            (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 
                     return FALSE;
@@ -1511,7 +1474,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                             (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                            (PSCSI_REQUEST_BLOCK)Srb);
+                                            (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 
                     return FALSE;
@@ -1531,7 +1494,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                             (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                            (PSCSI_REQUEST_BLOCK)Srb);
+                                            (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 
                     return FALSE;
@@ -1544,7 +1507,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                (PSCSI_REQUEST_BLOCK)Srb);
+                (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             /* For WMI requests, just turn around and complete successfully */
             StorPortDebugPrint(INFO, "BuildIo: SRB_FUNCTION_WMI\n");
@@ -1567,7 +1530,7 @@ BOOLEAN NVMeBuildIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                     (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                    (PSCSI_REQUEST_BLOCK)Srb);
+                                    (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             return FALSE;
         break;
@@ -1717,7 +1680,7 @@ BOOLEAN NVMeProcessAbortCmd(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 
 )
@@ -1809,7 +1772,7 @@ BOOLEAN NVMeProcessAbortCmd(
  ******************************************************************************/
 BOOLEAN NVMeStartIo(
     __in PVOID AdapterExtension,
-    __in PSCSI_REQUEST_BLOCK Srb
+    __in PSTORAGE_REQUEST_BLOCK Srb
     )
 {
     PNVME_DEVICE_EXTENSION pAdapterExtension =
@@ -1857,7 +1820,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                (PSCSI_REQUEST_BLOCK)Srb);
+                                (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
         return TRUE;
     }
@@ -1870,7 +1833,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                         (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                        (PSCSI_REQUEST_BLOCK)Srb);
+                                        (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             if (status == FALSE) {
                 Srb->SrbStatus = SRB_STATUS_ERROR;
@@ -1879,7 +1842,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                         (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                        (PSCSI_REQUEST_BLOCK)Srb);
+                                        (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             }
             break;
@@ -1905,7 +1868,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                         (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                        (PSCSI_REQUEST_BLOCK)Srb);
+                                        (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             if (status == FALSE) {
                 Srb->SrbStatus = SRB_STATUS_ERROR;
@@ -1914,7 +1877,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                         (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                        (PSCSI_REQUEST_BLOCK)Srb);
+                                        (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             }
         break;
@@ -1923,7 +1886,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                     (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                    (PSCSI_REQUEST_BLOCK)Srb);
+                                    (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
         break;
         case SRB_FUNCTION_EXECUTE_SCSI:
@@ -1957,7 +1920,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 					(PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-					(PSCSI_REQUEST_BLOCK)Srb);
+					(PSTORAGE_REQUEST_BLOCK)Srb);
 #endif 
 			}
 
@@ -1969,7 +1932,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                (PSCSI_REQUEST_BLOCK)Srb);
+                (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
 
             Srb->SrbStatus = SRB_STATUS_SUCCESS;
@@ -1977,7 +1940,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                 (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                (PSCSI_REQUEST_BLOCK)Srb);
+                (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
             break;
         default:
@@ -1991,7 +1954,7 @@ BOOLEAN NVMeStartIo(
 #if (NTDDI_VERSION > NTDDI_WIN7)
                                     (PSTORAGE_REQUEST_BLOCK)Srb);
 #else
-                                    (PSCSI_REQUEST_BLOCK)Srb);
+                                    (PSTORAGE_REQUEST_BLOCK)Srb);
 #endif
         break;
     }
@@ -2014,7 +1977,7 @@ void NVMeStartIoProcessIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    __in PSCSI_REQUEST_BLOCK pSrb
+    __in PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2624,7 +2587,7 @@ VOID RecoveryDpcRoutine(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = (PSTORAGE_REQUEST_BLOCK)pSystemArgument1;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = (PSCSI_REQUEST_BLOCK)pSystemArgument1;
+    PSTORAGE_REQUEST_BLOCK pSrb = (PSTORAGE_REQUEST_BLOCK)pSystemArgument1;
 #endif
     
     STOR_LOCK_HANDLE startLockhandle = { 0 };
@@ -2703,7 +2666,7 @@ BOOLEAN NVMeResetController(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    __in PSCSI_REQUEST_BLOCK pSrb
+    __in PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2865,7 +2828,7 @@ VOID NVMeInitSrbExtension(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -2962,7 +2925,7 @@ BOOLEAN NVMeHandleNVMePassthrough(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExtension->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExtension->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExtension->pSrb;
 #endif
     PNVMe_COMMAND_DWORD_0 pNvmeCmdDW0 = NULL;
     
@@ -3222,7 +3185,7 @@ BOOLEAN NVMeIoctlGetLogPage(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -3278,7 +3241,7 @@ BOOLEAN NVMeIoctlIdentify(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -3338,7 +3301,7 @@ BOOLEAN NVMeIoctlFwDownload(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -3408,7 +3371,7 @@ BOOLEAN NVMeIoctlSetGetFeatures(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif    
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl,
     UCHAR OPC
@@ -3806,7 +3769,7 @@ BOOLEAN NVMeDisableHMBCallback(
 	BOOLEAN status;
 	PNVME_DEVICE_EXTENSION pAdapterExtension =
 		(PNVME_DEVICE_EXTENSION)pNVMeDevExt;
-	PSCSI_REQUEST_BLOCK pSrb = pAdapterExtension->pCurrentSrb;
+	PSTORAGE_REQUEST_BLOCK pSrb = pAdapterExtension->pCurrentSrb;
 	UCHAR Function = pSrb->Function;
 
 #if (NTDDI_VERSION > NTDDI_WIN7)
@@ -3827,7 +3790,7 @@ BOOLEAN NVMeDisableHMBCallback(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 			(PSTORAGE_REQUEST_BLOCK)pSrb);
 #else
-			(PSCSI_REQUEST_BLOCK)pSrb);
+			(PSTORAGE_REQUEST_BLOCK)pSrb);
 #endif
 		break;
 
@@ -3857,7 +3820,7 @@ BOOLEAN NVMeDisableHMBCallback(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 			(PSTORAGE_REQUEST_BLOCK)pSrb);
 #else
-			(PSCSI_REQUEST_BLOCK)pSrb);
+			(PSTORAGE_REQUEST_BLOCK)pSrb);
 #endif
 		break;
 	case SRB_FUNCTION_SHUTDOWN:
@@ -3869,7 +3832,7 @@ BOOLEAN NVMeDisableHMBCallback(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 			(PSTORAGE_REQUEST_BLOCK)pSrb);
 #else
-			(PSCSI_REQUEST_BLOCK)pSrb);
+			(PSTORAGE_REQUEST_BLOCK)pSrb);
 #endif
 		break;
 	default:
@@ -3940,7 +3903,7 @@ BOOLEAN NVMeIoctlSecuritySendRcv(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif    
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl,
     UCHAR OPC
@@ -4023,7 +3986,7 @@ BOOLEAN NVMeIoctlCompare(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -4094,7 +4057,7 @@ BOOLEAN NVMeIoctlDataSetManagement(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -4155,7 +4118,7 @@ VOID NVMeIoctlHotRemoveNamespace (
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl = NULL;
@@ -4244,7 +4207,7 @@ VOID NVMeIoctlHotAddNamespace (
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl = NULL;
@@ -4316,7 +4279,7 @@ VOID NVMeFormatNVMHotRemoveNamespace(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl = NULL;
@@ -4426,7 +4389,7 @@ VOID NVMeFormatNVMHotAddNamespace(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
 
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl = NULL;
@@ -4506,7 +4469,7 @@ BOOLEAN NVMeIoctlNamespaceAttachment(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-	PSCSI_REQUEST_BLOCK pSrb,
+	PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -4618,7 +4581,7 @@ BOOLEAN NVMeIoctlNamespaceMgmt(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-	PSCSI_REQUEST_BLOCK pSrb,
+	PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -4721,7 +4684,7 @@ BOOLEAN NVMeCompletionNsAttachment(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-	PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+	PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     pSrb->SrbStatus = SRB_STATUS_SUCCESS;
 
@@ -4874,7 +4837,7 @@ BOOLEAN NVMeCompletionNsMgmt(
 #if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-	PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+	PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     pSrb->SrbStatus = SRB_STATUS_SUCCESS;
 
@@ -5083,7 +5046,7 @@ BOOLEAN NVMeIoctlFormatNVMCallback(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
+    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
 #endif
     
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl = NULL;
@@ -5307,7 +5270,7 @@ BOOLEAN NVMeIoctlFormatNVM (
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -5364,7 +5327,7 @@ BOOLEAN NVMeIsNamespaceVisible(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = NULL;
 #else
-    PSCSI_REQUEST_BLOCK pSrb = NULL;
+    PSTORAGE_REQUEST_BLOCK pSrb = NULL;
 #endif
     
     PNVME_DEVICE_EXTENSION pDevExt = NULL;
@@ -5493,7 +5456,7 @@ BOOLEAN NVMeIoctlTxDataToHost(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -5552,7 +5515,7 @@ BOOLEAN NVMeIoctlTxDataToDev(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
 #else
-    PSCSI_REQUEST_BLOCK pSrb,
+    PSTORAGE_REQUEST_BLOCK pSrb,
 #endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 )
@@ -5608,7 +5571,7 @@ BOOLEAN NVMeProcessIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5659,7 +5622,7 @@ BOOLEAN NVMeProcessPublicIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -5928,7 +5891,7 @@ BOOLEAN NVMeProcessPrivateIoctl(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    PSCSI_REQUEST_BLOCK pSrb
+    PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -6401,7 +6364,7 @@ VOID IO_StorPortNotification(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
 #else
-    __in PSCSI_REQUEST_BLOCK pSrb
+    __in PSTORAGE_REQUEST_BLOCK pSrb
 #endif
 )
 {
@@ -6451,14 +6414,6 @@ VOID IO_StorPortNotification(
     StorPortNotification(NotificationType,
                          pHwDeviceExtension,
                          pSrb);
-}
-#endif
-
-#ifndef DBG
-VOID WppCleanupRoutine(PVOID arg1) {
-    StorPortDebugPrint(INFO, "WppCleanupRoutine\n");
-
-    WPP_CLEANUP(NULL, TraceContext);
 }
 #endif
 

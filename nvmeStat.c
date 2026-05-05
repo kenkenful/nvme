@@ -46,9 +46,6 @@
  */
 
 #include "precomp.h"
-#ifndef DBG
-#include "nvmestat.tmh"
-#endif
 
 /*******************************************************************************
  * NVMeCallArbiter
@@ -137,7 +134,7 @@ BOOLEAN NVMeRunningStartAttempt(
 #if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pResetSrb
 #else
-    PSCSI_REQUEST_BLOCK pResetSrb
+    PSTORAGE_REQUEST_BLOCK pResetSrb
 #endif
 )
 {

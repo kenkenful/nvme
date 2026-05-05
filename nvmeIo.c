@@ -46,9 +46,6 @@
  */
 
 #include "precomp.h"
-#ifndef DBG
-#include "nvmeIo.tmh"
-#endif
 
 #if DBG
 BOOLEAN gResetTest = FALSE;

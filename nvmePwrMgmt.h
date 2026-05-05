@@ -67,7 +67,7 @@ BOOLEAN NVMeAdapterControlPowerDown(
 
 BOOLEAN NVMePowerControl(
     IN PNVME_DEVICE_EXTENSION pAdapterExtension,
-    IN PSCSI_REQUEST_BLOCK Srb
+    IN PSTORAGE_REQUEST_BLOCK Srb
 );
 
 #if (NTDDI_VERSION > NTDDI_WIN7)
