@@ -68,7 +68,3 @@
 #include "nvmeSntiTypes.h"
 #include "nvmeIo.h"
 #include "nvmeWmi.h"
-
-#include "nvme_tracing.h"
-
-
