@@ -1055,7 +1055,7 @@ ULONG NVMeInitSubQueue(
         return ( STOR_STATUS_INVALID_PARAMETER );
 		
 /* Code Analysis fails on StoPortReadRegisterUlong64 */
-#if 0 // (NTDDI_VERSION > NTDDI_WIN7) && defined(_WIN64)
+#if 0
     CAP.AsUlonglong = StorPortReadRegisterUlong64(pAE,
         (PULONG64)(&pAE->pCtrlRegister->CAP));
 #else
@@ -1177,7 +1177,7 @@ ULONG NVMeInitCplQueue(
         return ( STOR_STATUS_INVALID_PARAMETER );
 		
 /* Code Analysis fails on StoPortReadRegisterUlong64 */
-#if 0 // (NTDDI_VERSION > NTDDI_WIN7) && defined(_WIN64)
+#if 0
     CAP.AsUlonglong = StorPortReadRegisterUlong64(pAE,
         (PULONG64)(&pAE->pCtrlRegister->CAP));
 #else
@@ -1860,7 +1860,7 @@ BOOLEAN NVMeInitCallback(
 				}
 
 /* Code Analysis fails on StoPortReadRegisterUlong64 */
-#if 0 // (NTDDI_VERSION > NTDDI_WIN7) && defined(_WIN64)
+#if 0
                 CAP.AsUlonglong = StorPortReadRegisterUlong64(pAE,
                     (PULONG64)(&pAE->pCtrlRegister->CAP));
 #else

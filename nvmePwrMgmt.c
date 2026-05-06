@@ -144,15 +144,12 @@ BOOLEAN NVMePowerControl(
     BOOLEAN powerActionValid = FALSE;
     NVME_PWR_ACTION nvmePwrAction = NVME_PWR_NONE;
     PSCSI_POWER_REQUEST_BLOCK pPowerSrb = (PSCSI_POWER_REQUEST_BLOCK)Srb;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSRBEX_DATA_POWER pSrbExPower = NULL;
-#endif
 
     ULONG PowerAction = 0;
     UCHAR SrbPowerFlags = 0;
     ULONG DevicePowerState = 0;
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
     pSrbExPower = (PSRBEX_DATA_POWER)SrbGetSrbExDataByType((PSTORAGE_REQUEST_BLOCK)Srb,
                                                             SrbExDataTypePower);
     if (pSrbExPower != NULL) {
@@ -165,11 +162,6 @@ BOOLEAN NVMePowerControl(
         SrbPowerFlags = pPowerSrb->SrbPowerFlags;
         DevicePowerState = pPowerSrb->DevicePowerState;
     }
-#else
-    PowerAction = pPowerSrb->PowerAction;
-    SrbPowerFlags = pPowerSrb->SrbPowerFlags;
-    DevicePowerState = pPowerSrb->DevicePowerState;
-#endif
 
     if ((SrbPowerFlags & SRB_POWER_FLAGS_ADAPTER_REQUEST) == FALSE) {
         /* 
@@ -286,7 +278,6 @@ BOOLEAN NVMePowerControl(
     return status;
 }
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 /*******************************************************************************
 * NVMeAdapterPowerControl
 *
@@ -405,4 +396,3 @@ BOOLEAN NVMeAdapterPowerControl(
 
     return status;
 }
-#endif

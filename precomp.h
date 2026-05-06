@@ -52,9 +52,7 @@
 #include "stdlib.h"
 #include <guiddef.h>
 #include <storport.h>
-#if (NTDDI_VERSION > NTDDI_WIN7)
 #include <srbhelper.h>
-#endif
 #include <scsiwmi.h>
 #include <initguid.h>
 #include <ata.h>
@@ -68,3 +66,7 @@
 #include "nvmeSntiTypes.h"
 #include "nvmeIo.h"
 #include "nvmeWmi.h"
+
+#include "nvme_tracing.h"
+
+

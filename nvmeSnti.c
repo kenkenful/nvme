@@ -353,16 +353,11 @@ SNTI_RESPONSE_BLOCK mediaErrorTable[] = {
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateCommand(
     PNVME_DEVICE_EXTENSION pAdapterExtension,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     SNTI_TRANSLATION_STATUS returnStatus = SNTI_SUCCESS;
     BOOLEAN supportsVwc = pAdapterExtension->controllerIdentifyData.VWC.Present;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     UCHAR scsiStatus = SCSISTAT_GOOD;
 
     /* Sanity Check if SrbGetCdb returns NULL pointer. */ 
@@ -380,21 +375,14 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
         returnStatus = SNTI_UNSUPPORTED_SCSI_REQUEST;
         return returnStatus;
     }
-#endif
     /* DEBUG ONLY - Turn off for main I/O */
 #if DBG
     StorPortDebugPrint(INFO,
                        "SNTI: Translating opcode - 0x%02x BTL (%d %d %d)\n",
                        GET_OPCODE(pSrb),
-#if (NTDDI_VERSION > NTDDI_WIN7)
                        SrbGetPathId((void*)pSrb),
                        SrbGetTargetId((void*)pSrb),
                        SrbGetLun((void*)pSrb));
-#else
-                       pSrb->PathId,
-                       pSrb->TargetId,
-                       pSrb->Lun);
-#endif
 #endif /* DBG */
 
 
@@ -411,12 +399,8 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
             returnStatus = SntiTranslateRead(pSrb);
             if (returnStatus == SNTI_COMMAND_COMPLETED) {
                 pSrb->SrbStatus = SRB_STATUS_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
                 scsiStatus = SCSISTAT_GOOD;
                 SrbSetScsiData(pSrb, NULL, NULL, &scsiStatus, NULL, NULL);
-#else
-                pSrb->ScsiStatus = SCSISTAT_GOOD;
-#endif
                 SET_DATA_LENGTH(pSrb, 0);
             }
         break;
@@ -427,12 +411,8 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
             returnStatus = SntiTranslateWrite(pSrb);
             if (returnStatus == SNTI_COMMAND_COMPLETED) {
                 pSrb->SrbStatus = SRB_STATUS_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
                 scsiStatus = SCSISTAT_GOOD;
                 SrbSetScsiData(pSrb, NULL, NULL, &scsiStatus, NULL, NULL);
-#else
-                pSrb->ScsiStatus = SCSISTAT_GOOD;
-#endif
                 SET_DATA_LENGTH(pSrb, 0);
             }
         break;
@@ -441,15 +421,9 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
             /* set the maximum queue depth per LUN */
             if (pSrb->SrbStatus == SRB_STATUS_SUCCESS) {
                 StorPortSetDeviceQueueDepth(pAdapterExtension,
-#if (NTDDI_VERSION > NTDDI_WIN7)
                             SrbGetPathId((void*)pSrb),
                             SrbGetTargetId((void*)pSrb),
                             SrbGetLun((void*)pSrb),
-#else
-                            pSrb->PathId,
-                            pSrb->TargetId,
-                            pSrb->Lun,
-#endif
                             SNTI_STORPORT_QUEUE_DEPTH
                             );
             }
@@ -504,22 +478,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
         break;
         case SCSIOP_SECURITY_PROTOCOL_IN:
         case SCSIOP_SECURITY_PROTOCOL_OUT:
-            /* Need support added QEMU for NVME SECURITY SEND/RECEIVE */
-            /* returnStatus = SntiTranslateSecurityProtocol(pSrb); */
-            StorPortDebugPrint(INFO,
-                "SNTI: SCSIOP_SECURITY_PROTOCOL_IN_OUT unsupported - 0x%02x\n",
-                GET_OPCODE(pSrb));
-
-            SntiSetScsiSenseData(pSrb,
-                                 SCSISTAT_CHECK_CONDITION,
-                                 SCSI_SENSE_ILLEGAL_REQUEST,
-                                 SCSI_ADSENSE_ILLEGAL_COMMAND,
-                                 SCSI_ADSENSE_NO_SENSE);
-
-            pSrb->SrbStatus |= SRB_STATUS_INVALID_REQUEST;
-            SET_DATA_LENGTH(pSrb, 0);
-
-            returnStatus = SNTI_UNSUPPORTED_SCSI_REQUEST;
+            returnStatus = SntiTranslateSecurityProtocol(pSrb);
         break;
         case SCSIOP_START_STOP_UNIT:
             returnStatus = SntiTranslateStartStopUnit(pSrb);
@@ -560,11 +519,9 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
         break;
 
         /*UNMAP not supported prior to Win 8*/
-#if (NTDDI_VERSION > NTDDI_WIN7)
         case SCSIOP_UNMAP:
             returnStatus = SntiTranslateUnmap(pSrb);
         break;
-#endif
 
         default:
             StorPortDebugPrint(INFO,
@@ -606,11 +563,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateCommand(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateInquiry(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -664,7 +617,6 @@ SNTI_TRANSLATION_STATUS SntiTranslateInquiry(
               UNMAP and related VPD pages not supported prior to Win 8 
               (Note: VPD_BLOCK_LIMITS, etc. not defined in Win 7 WDK)
             */
-#if (NTDDI_VERSION > NTDDI_WIN7)
             case VPD_BLOCK_LIMITS:
                 SntiTranslateBlockLimitsPage(pSrb);
             break;
@@ -674,7 +626,6 @@ SNTI_TRANSLATION_STATUS SntiTranslateInquiry(
             case VPD_LOGICAL_BLOCK_PROVISIONING:
                 SntiTranslateLogicalBlockProvisioningPage(pSrb, pLunExt);
             break;
-#endif
 
             default:
                 SntiSetScsiSenseData(pSrb,
@@ -733,11 +684,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateInquiry(
  * @return VOID
  ******************************************************************************/
 VOID SntiTranslateSupportedVpdPages(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PVPD_SUPPORTED_PAGES_PAGE pSupportedVpdPages = NULL;
@@ -766,11 +713,9 @@ VOID SntiTranslateSupportedVpdPages(
           For Windows 8 Unmap support, we supply these additional VPD pages 
           (Note: #defines for VPD_BLOCK_LIMITS etc. are not defined in Win 7 WDK)
         */
-#if (NTDDI_VERSION > NTDDI_WIN7)
         pSupportedVpdPages->SupportedPageList[BYTE_3]   = VPD_BLOCK_LIMITS;
         pSupportedVpdPages->SupportedPageList[BYTE_4]   = VPD_BLOCK_DEVICE_CHARACTERISTICS;
         pSupportedVpdPages->SupportedPageList[BYTE_5]   = VPD_LOGICAL_BLOCK_PROVISIONING;
-#endif 
     }
     if (allocLength > 0 && allocLength < VPD_SUPPORTED_PAGES_PAGE_LENGTH) {
         StorPortCopyMemory(GET_DATA_BUFFER(pSrb), pSupportedVpdPages, allocLength);
@@ -798,11 +743,7 @@ VOID SntiTranslateSupportedVpdPages(
  * @return VOID
  ******************************************************************************/
 VOID SntiTranslateUnitSerialPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVME_LUN_EXTENSION pLunExt
 )
 {
@@ -960,11 +901,7 @@ VOID SntiTranslateUnitSerialPage(
 * @return VOID
 ******************************************************************************/
 VOID SntiTranslateDeviceIdentificationPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PVPD_IDENTIFICATION_PAGE pDeviceIdPage = NULL;
@@ -1817,7 +1754,6 @@ USHORT SntiConvertULLongToA(
 }
 
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 /******************************************************************************
  * SntiTranslateBlockLimitsPage
  *
@@ -1882,9 +1818,7 @@ VOID SntiTranslateBlockLimitsPage(
 
     SET_DATA_LENGTH(pSrb, min(sizeof(VPD_BLOCK_LIMITS_PAGE), allocLen));
 } /* SntiTranslateBlockLimitsPage */
-#endif 
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 /******************************************************************************
  * SntiTranslateBlockDeviceCharacteristicsPage
  *
@@ -1935,9 +1869,7 @@ VOID SntiTranslateBlockDeviceCharacteristicsPage(
     SET_DATA_LENGTH(pSrb,
         min(sizeof(VPD_BLOCK_DEVICE_CHARACTERISTICS_PAGE), allocLen));
 } /* SntiTranslateBlockDeviceCharacteristicsPage */
-#endif
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 /******************************************************************************
  * SntiTranslateLogicalBlockProvisioningPage
  *
@@ -2018,7 +1950,6 @@ VOID SntiTranslateLogicalBlockProvisioningPage(
     SET_DATA_LENGTH(pSrb, 
         min(sizeof(VPD_LOGICAL_BLOCK_PROVISIONING_PAGE), allocLen));
 } /* SntiTranslateLogicalBlockProvisioningPage */
-#endif
 
 /******************************************************************************
  * SntiTranslateExtendedInquiryDataPage
@@ -2040,11 +1971,7 @@ VOID SntiTranslateLogicalBlockProvisioningPage(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateExtendedInquiryDataPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_DEVICE_EXTENSION pDevExt = NULL;
@@ -2173,11 +2100,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateExtendedInquiryDataPage(
  * @return VOID
  ******************************************************************************/
 VOID SntiTranslateStandardInquiryPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_DEVICE_EXTENSION pDevExt = NULL;
@@ -2282,11 +2205,7 @@ VOID SntiTranslateStandardInquiryPage(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateReportLuns(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_DEVICE_EXTENSION pDevExt = NULL;
@@ -2301,11 +2220,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReportLuns(
     UCHAR lunExtIdx = 0;
     PNVME_LUN_EXTENSION pLunExt = NULL;
     UINT8 flbas = 0;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     UINT32 lunValue = SrbGetLun((void*)pSrb);
-#else
-    UINT32 lunValue = pSrb->Lun;
-#endif
 
     /* Default to a successful command completion */
     SNTI_TRANSLATION_STATUS returnStatus = SNTI_COMMAND_COMPLETED;
@@ -2438,11 +2353,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReportLuns(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_LUN_EXTENSION pLunExt = NULL;
@@ -2538,11 +2449,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity10(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PUCHAR pResponseBuffer,
     PNVME_LUN_EXTENSION pLunExt
 )
@@ -2649,11 +2556,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity10(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity16(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PUCHAR pResponseBuffer,
     PNVME_LUN_EXTENSION pLunExt
 )
@@ -2668,11 +2571,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity16(
     UINT8  dps;
     UINT8  protectionType;
     UINT8  protectionEnabled;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PUCHAR pCdb = (PUCHAR)SrbGetCdb((void*)pSrb);
-#else
-    PUCHAR pCdb = (PUCHAR)pSrb->Cdb;
-#endif
     /* Default to a successful command completion */
     SNTI_TRANSLATION_STATUS returnStatus = SNTI_COMMAND_COMPLETED;
 
@@ -2788,11 +2687,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity16(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateWrite(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_DEVICE_EXTENSION pDevExt = NULL;
@@ -2890,11 +2785,7 @@ SNTI_STATUS SntiTranslateWrite6(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT32 lba = 0;
     UINT16 length = 0;
@@ -2950,11 +2841,7 @@ SNTI_STATUS SntiTranslateWrite10(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT32 lba = 0;
     UINT16 length = 0;
@@ -3010,11 +2897,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWrite12(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT32 lba = 0;
     UINT32 length = 0;
@@ -3070,11 +2953,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWrite16(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT64 lba = 0;
     UINT32 length = 0;
@@ -3129,11 +3008,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWrite16(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateRead(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_DEVICE_EXTENSION pDevExt = NULL;
@@ -3229,11 +3104,7 @@ SNTI_STATUS SntiTranslateRead6(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT32 lba = 0;
     UINT16 length = 0;
@@ -3289,11 +3160,7 @@ SNTI_STATUS SntiTranslateRead10(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT32 lba = 0;
     UINT16 length = 0;
@@ -3350,11 +3217,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRead12(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT32 lba = 0;
     UINT32 length = 0;
@@ -3413,11 +3276,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRead16(
 )
 {
     SNTI_STATUS status = SNTI_SUCCESS;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT64 lba = 0;
     UINT32 length = 0;
@@ -3475,11 +3334,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateRead16(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateRequestSense(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_DEVICE_EXTENSION pDevExt = NULL;
@@ -3595,15 +3450,12 @@ SNTI_TRANSLATION_STATUS SntiTranslateRequestSense(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateSecurityProtocol(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
     PNVME_LUN_EXTENSION pLunExt = NULL;
+    PNVME_DEVICE_EXTENSION pDevExt = NULL;
     UINT32 length;
     UINT16 secProtocolSp;
     UINT8 secProtocol;
@@ -3614,6 +3466,24 @@ SNTI_TRANSLATION_STATUS SntiTranslateSecurityProtocol(
     /* Default to successful translation */
     SNTI_TRANSLATION_STATUS returnStatus = SNTI_TRANSLATION_SUCCESS;
     pSrbExt = (PNVME_SRB_EXTENSION)GET_SRB_EXTENSION(pSrb);
+    pDevExt = pSrbExt->pNvmeDevExt;
+
+    if (pDevExt->controllerIdentifyData.OACS.SupportsSecuritySendSecurityReceive == 0) {
+        StorPortDebugPrint(INFO,
+            "SNTI: NVMe Security Send/Receive unsupported - 0x%02x\n",
+            GET_OPCODE(pSrb));
+
+        SntiSetScsiSenseData(pSrb,
+                             SCSISTAT_CHECK_CONDITION,
+                             SCSI_SENSE_ILLEGAL_REQUEST,
+                             SCSI_ADSENSE_ILLEGAL_COMMAND,
+                             SCSI_ADSENSE_NO_SENSE);
+
+        pSrb->SrbStatus |= SRB_STATUS_INVALID_REQUEST;
+        SET_DATA_LENGTH(pSrb, 0);
+
+        return SNTI_UNSUPPORTED_SCSI_REQUEST;
+    }
 
     length = GET_U32_FROM_CDB(pSrb, SECURITY_PROTOCOL_CDB_LENGTH_OFFSET);
     secProtocol = GET_U8_FROM_CDB(pSrb, SECURITY_PROTOCOL_CDB_SEC_PROT_OFFSET);
@@ -3681,11 +3551,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateSecurityProtocol(
 *     Indicate translation status
 ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveIn(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -3805,11 +3671,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveIn(
 *     Indicate translation status
 ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveOut(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -4078,11 +3940,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveOut(
 *     Indicate translation status
 ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiBuildPersReserveRegisterCmd(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVME_SRB_EXTENSION pSrbExt,
     PNVME_LUN_EXTENSION pLunExt,
     PNVME_DEVICE_EXTENSION pDevExt,
@@ -4184,11 +4042,7 @@ SNTI_TRANSLATION_STATUS SntiBuildPersReserveRegisterCmd(
 *     Indicate translation status
 ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslatePersReserveInResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -4420,11 +4274,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersReserveInResponse(
         status = GetLunExtension(pSrbExt, &pLunExt);
         if (status != SNTI_SUCCESS) {
             INT lun = 0xff;
-#if (NTDDI_VERSION > NTDDI_WIN7)
             lun = SrbGetLun((void*)pSrb);
-#else
-            lun = pSrb->Lun;
-#endif
             StorPortDebugPrint(INFO,
                 "SntiTranslatePersReserveInResponse: Invalid LUN specified - Lun: 0x%x \n",
                 lun);
@@ -4507,11 +4357,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersReserveInResponse(
 *     Indicate translation status
 ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslatePersReserveOutResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -4583,11 +4429,7 @@ SNTI_TRANSLATION_STATUS SntiTranslatePersReserveOutResponse(
  *     Indicate translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateStartStopUnit(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -4680,11 +4522,7 @@ SNTI_TRANSLATION_STATUS SntiTransitionPowerState(
     UINT8 start
 )
 {
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
 
     UINT32 dword11 = 0;
     UINT8 numPowerStatesSupported = 0;
@@ -4789,7 +4627,6 @@ SNTI_TRANSLATION_STATUS SntiTransitionPowerState(
     return returnStatus;
 } /* SntiTransitionPowerState */
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 /******************************************************************************
  * SntiTranslateUnmap
  *
@@ -5028,9 +4865,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateUnmap(
 
     return returnStatus;
 } /* SntiTranslateUnmap  */
-#endif
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 /******************************************************************************
  * SntiValidateUnmapLbaAndLength
  *
@@ -5091,7 +4926,6 @@ SNTI_STATUS SntiValidateUnmapLbaAndLength(
 
     return status;
 } /* SntiValidateUnmapLbaAndLength*/
-#endif
 
 
 /******************************************************************************
@@ -5112,11 +4946,7 @@ SNTI_STATUS SntiValidateUnmapLbaAndLength(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateWriteBuffer(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -5223,11 +5053,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateWriteBuffer(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateSynchronizeCache(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -5282,11 +5108,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateSynchronizeCache(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateTestUnitReady(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = (PNVME_SRB_EXTENSION)GET_SRB_EXTENSION(pSrb);
@@ -5347,11 +5169,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateTestUnitReady(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateFormatUnit(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -5502,11 +5320,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateFormatUnit(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateLogSense(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -5669,11 +5483,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateLogSense(
  * @return VOID
  ******************************************************************************/
 VOID SntiTranslateSupportedLogPages(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PSUPPORTED_LOG_PAGES_LOG_PAGE pLogPage = NULL;
@@ -5722,11 +5532,7 @@ VOID SntiTranslateSupportedLogPages(
  * @return VOID
  ******************************************************************************/
 VOID SntiTranslateTemperature(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
 
@@ -5784,11 +5590,7 @@ VOID SntiTranslateTemperature(
  *     Indicate translation status.
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateModeSense(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     BOOLEAN supportsVwc
 )
 {
@@ -5999,11 +5801,7 @@ VOID SntiCreateControlModePage(
     PMODE_PARAMETER_HEADER10 pModeHeader10 = NULL;
     PMODE_PARAMETER_BLOCK pModeParamBlock = NULL;
     PCONTROL_MODE_PAGE pControlModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
 
@@ -6102,11 +5900,7 @@ VOID SntiHardCodeCacheModePage(
     PMODE_PARAMETER_HEADER10 pModeHeader10 = NULL;
     PMODE_PARAMETER_BLOCK pModeParamBlock = NULL;
     PCACHING_MODE_PAGE pCachingModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
 
@@ -6197,11 +5991,7 @@ VOID SntiCreatePowerConditionControlModePage(
     PMODE_PARAMETER_HEADER10 pModeHeader10 = NULL;
     PMODE_PARAMETER_BLOCK pModeParamBlock = NULL;
     PPOWER_CONDITION_MODE_PAGE pPowerConditionModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
 
@@ -6291,11 +6081,7 @@ VOID SntiCreateInformationalExceptionsControlModePage(
     PMODE_PARAMETER_HEADER10 pModeHeader10 = NULL;
     PMODE_PARAMETER_BLOCK pModeParamBlock = NULL;
     PINFO_EXCEPTIONS_MODE_PAGE pInfoExceptionsModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
 
@@ -6389,11 +6175,7 @@ SNTI_TRANSLATION_STATUS SntiReturnAllModePages(
     PPOWER_CONDITION_MODE_PAGE pPowerConditionModePage = NULL;
     PCACHING_MODE_PAGE pCachingModePage = NULL;
     PINFO_EXCEPTIONS_MODE_PAGE pInfoExceptionsModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
     SNTI_TRANSLATION_STATUS returnStatus;
@@ -6570,11 +6352,7 @@ SNTI_TRANSLATION_STATUS SntiReturnAllModePages(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateModeSelect(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     BOOLEAN supportsVwc
 )
 {
@@ -6589,9 +6367,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeSelect(
     SNTI_TRANSLATION_STATUS returnStatus = SNTI_COMMAND_COMPLETED;
 
     /* Extract the Log Sense fields to determine the page */
-#if (NTDDI_VERSION > NTDDI_WIN7)
     UCHAR scsiStatus = SCSISTAT_GOOD;
-#endif
     pSrbExt = (PNVME_SRB_EXTENSION)GET_SRB_EXTENSION(pSrb);
     pageFormat = GET_U8_FROM_CDB(pSrb, MODE_SELECT_CDB_PAGE_FORMAT_OFFSET);
     savePages = GET_U8_FROM_CDB(pSrb, MODE_SELECT_CDB_SAVE_PAGES_OFFSET);
@@ -6623,14 +6399,9 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeSelect(
          * shall not be considered an error
          */
         SET_DATA_LENGTH(pSrb, 0);
-#if (NTDDI_VERSION > NTDDI_WIN7)
         SrbSetScsiData(pSrb, NULL, NULL, NULL, NULL, 0);
         scsiStatus = SCSISTAT_GOOD;
         SrbSetScsiData(pSrb, NULL, NULL, &scsiStatus, NULL, NULL);
-#else
-        pSrb->SenseInfoBufferLength = 0;
-        pSrb->ScsiStatus = SCSISTAT_GOOD;
-#endif
         pSrb->SrbStatus = SRB_STATUS_SUCCESS;
         returnStatus = SNTI_COMMAND_COMPLETED;
     } else {
@@ -6679,11 +6450,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeData(
     PMODE_PARAMETER_BLOCK pModeParamBlock = NULL;
     PCACHING_MODE_PAGE pCacheModePage = NULL;
     PPOWER_CONDITION_MODE_PAGE pPowerModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     PUCHAR pModePagePtr = NULL;
     UINT32 numBlockDesc = 0;
     UINT32 dword11 = 0;
@@ -7095,11 +6862,7 @@ SNTI_STATUS SntiValidateLbaAndLength(
     UINT32 length
 )
 {
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     SNTI_STATUS status = SNTI_SUCCESS;
     UINT32 lbaSize = 0;
     UINT32 lbaLengthPower = 0;
@@ -7173,11 +6936,7 @@ SNTI_STATUS SntiValidateLbaAndLength(
  * @return BOOLEAN
  ******************************************************************************/
 BOOLEAN SntiSetScsiSenseData(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UCHAR scsiStatus,
     UCHAR senseKey,
     UCHAR asc,
@@ -7189,14 +6948,8 @@ BOOLEAN SntiSetScsiSenseData(
     UCHAR senseInfoBufferLength = 0;
     PVOID senseInfoBuffer = NULL;
     UCHAR senseDataLength = sizeof(SENSE_DATA);
-#if (NTDDI_VERSION > NTDDI_WIN7)
     SrbSetScsiData(pSrb, NULL, NULL, &scsiStatus, NULL, NULL);
     SrbGetScsiData(pSrb, NULL, NULL, NULL, &senseInfoBuffer, &senseInfoBufferLength);
-#else
-    pSrb->ScsiStatus = scsiStatus;
-    senseInfoBufferLength = pSrb->SenseInfoBufferLength;
-    senseInfoBuffer = pSrb->SenseInfoBuffer;
-#endif
     if ((scsiStatus != SCSISTAT_GOOD) &&
         (senseInfoBufferLength >= senseDataLength)) {
 
@@ -7210,18 +6963,10 @@ BOOLEAN SntiSetScsiSenseData(
 
         pSenseData->AdditionalSenseLength = senseDataLength - 
             FIELD_OFFSET(SENSE_DATA, CommandSpecificInformation);
-#if (NTDDI_VERSION > NTDDI_WIN7)
         SrbSetScsiData(pSrb, NULL, NULL, NULL, NULL, &senseDataLength);
-#else
-        pSrb->SenseInfoBufferLength = sizeof(SENSE_DATA);
-#endif
         pSrb->SrbStatus |= SRB_STATUS_AUTOSENSE_VALID;
     } else {
-#if (NTDDI_VERSION > NTDDI_WIN7)
         SrbSetScsiData(pSrb, NULL, NULL, NULL, NULL, 0);
-#else
-        pSrb->SenseInfoBufferLength = 0;
-#endif
         status = FALSE;
     }
 
@@ -7251,21 +6996,12 @@ SNTI_STATUS GetLunExtension(
     UCHAR Lun = 0;
     SNTI_STATUS returnStatus = SNTI_SUCCESS;
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
     ASSERT(pDevExt != NULL);
     ASSERT(pSrb != NULL);
     PathId = SrbGetPathId((void*)pSrb);
     TargetId = SrbGetTargetId((void*)pSrb);
     Lun = SrbGetLun((void*)pSrb);
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-    ASSERT(pDevExt != NULL);
-    ASSERT(pSrb != NULL);
-    PathId = pSrb->PathId;
-    TargetId = pSrb->TargetId;
-    Lun = pSrb->Lun;
-#endif
 
     if ((PathId != VALID_NVME_PATH_ID) ||
         (TargetId != VALID_NVME_TARGET_ID) ||
@@ -7741,12 +7477,14 @@ VOID SntiBuildSecuritySendReceiveCmd(
 
     pSrbExt->nvmeSqeUnit.NSID = pLunExt->namespaceId;
 
-    /* PRP Entry/List */
-    pSgl = StorPortGetScatterGatherList(pSrbExt->pNvmeDevExt, 
-                                       (PSTORAGE_REQUEST_BLOCK)pSrbExt->pSrb);
-    ASSERT(pSgl != NULL);
+    if (transferLength != 0) {
+        /* PRP Entry/List */
+        pSgl = StorPortGetScatterGatherList(pSrbExt->pNvmeDevExt,
+                                           (PSTORAGE_REQUEST_BLOCK)pSrbExt->pSrb);
+        ASSERT(pSgl != NULL);
 
-    SntiTranslateSglToPrp(pSrbExt, pSgl);
+        SntiTranslateSglToPrp(pSrbExt, pSgl);
+    }
 
     /* DWORD 10 */
     pCdw10->SPSP = secProtocolSp;
@@ -7785,11 +7523,7 @@ BOOLEAN SntiCompletionCallbackRoutine(
     PNVME_DEVICE_EXTENSION pDevExt = (PNVME_DEVICE_EXTENSION)param1;
     PNVME_SRB_EXTENSION pSrbExt = (PNVME_SRB_EXTENSION)param2;
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry = pSrbExt->pCplEntry;
     UINT8 statusCodeType;
     UINT8 statusCode;
@@ -7908,11 +7642,7 @@ BOOLEAN SntiCompletionCallbackRoutine(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateLogSenseResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry
 )
 {
@@ -7965,11 +7695,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateLogSenseResponse(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateInformationalExceptionsResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT16 allocLength
 )
 {
@@ -8056,11 +7782,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateInformationalExceptionsResponse(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateTemperatureResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry,
     UINT16 allocLength
 )
@@ -8164,11 +7886,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateTemperatureResponse(
  *     Indicate translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateModeSenseResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry
 )
 {
@@ -8301,12 +8019,8 @@ SNTI_TRANSLATION_STATUS SntiTranslateModeSenseResponse(
 						returnStatus = SNTI_SEQUENCE_IN_PROGRESS;
 					}
 					else {
-#if (NTDDI_VERSION > NTDDI_WIN7)
 						scsiStatus = SCSISTAT_GOOD;
 						SrbSetScsiData(pSrb, NULL, NULL, &scsiStatus, NULL, NULL);
-#else
-						pSrb->ScsiStatus = SCSISTAT_GOOD;
-#endif
 						pSrb->SrbStatus = SRB_STATUS_SUCCESS;
 						returnStatus = SNTI_COMMAND_COMPLETED;
 					}
@@ -8370,12 +8084,8 @@ VOID SntiTranslateCachingModePageResponse(
     PMODE_PARAMETER_HEADER10 pModeHeader10 = NULL;
     PMODE_PARAMETER_BLOCK pModeParamBlock = NULL;
     PCACHING_MODE_PAGE pCachingModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
     UCHAR scsiStatus = 0;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT32 volatileWriteCache = 0;
     UINT16 modeDataLength = 0;
     UINT16 blockDescLength = 0;
@@ -8438,12 +8148,8 @@ VOID SntiTranslateCachingModePageResponse(
     SET_DATA_LENGTH(pSrb, min(modeDataLength, allocLength));
     StorPortCopyMemory((PVOID)GET_DATA_BUFFER(pSrb),
         (PVOID)(pSrbExt->modeSenseBuf), GET_DATA_LENGTH(pSrb));
-#if (NTDDI_VERSION > NTDDI_WIN7)
     scsiStatus = SCSISTAT_GOOD;
     SrbSetScsiData(pSrb, NULL, NULL, &scsiStatus, NULL, NULL);
-#else
-    pSrb->ScsiStatus = SCSISTAT_GOOD;
-#endif
     pSrbExt->pSrb->SrbStatus = SRB_STATUS_SUCCESS;
 } /* SntiTranslateCachingModePageResponse */
 
@@ -8468,12 +8174,8 @@ VOID SntiTranslateReturnAllModePagesResponse(
 {
     PUCHAR pBuffPtr = NULL;
     PCACHING_MODE_PAGE pCachingModePage = NULL;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
     UCHAR scsiStatus = 0;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT32 volatileWriteCache = 0;
 
     /* The Volatile Write Cache info will be stored in DWORD 0 of the CQE */
@@ -8498,12 +8200,8 @@ VOID SntiTranslateReturnAllModePagesResponse(
 
     pCachingModePage->WriteCacheEnable =
         volatileWriteCache & VOLATILE_WRITE_CACHE_MASK;
-#if (NTDDI_VERSION > NTDDI_WIN7)
     scsiStatus = SCSISTAT_GOOD;
     SrbSetScsiData(pSrb, NULL, NULL, &scsiStatus, NULL, NULL);
-#else
-    pSrb->ScsiStatus = SCSISTAT_GOOD;
-#endif
 
     pSrb->SrbStatus = SRB_STATUS_SUCCESS;
 } /* SntiTranslateReturnAllModePagesResponse */
@@ -8525,11 +8223,7 @@ VOID SntiTranslateReturnAllModePagesResponse(
  *     Indicate translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateStartStopUnitResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -8614,11 +8308,7 @@ SNTI_TRANSLATION_STATUS SntiTranslateStartStopUnitResponse(
  *     Indicates translation status
  ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiTranslateWriteBufferResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExt = NULL;
@@ -8704,11 +8394,7 @@ BOOLEAN SntiMapCompletionStatus(
     PNVME_SRB_EXTENSION pSrbExt
 )
 {
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb = pSrbExt->pSrb;
-#endif
     UINT8 statusCodeType = (UINT8)pSrbExt->pCplEntry->DW3.SF.SCT;
     UINT8 statusCode = (UINT8)pSrbExt->pCplEntry->DW3.SF.SC;
     BOOLEAN returnValue = TRUE;
@@ -8774,11 +8460,7 @@ BOOLEAN SntiMapCompletionStatus(
  * @return VOID
  ******************************************************************************/
 VOID SntiMapGenericCommandStatus(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT8 genericCommandStatus
 )
 {
@@ -8830,11 +8512,7 @@ VOID SntiMapGenericCommandStatus(
  * @return VOID
  ******************************************************************************/
 VOID SntiMapCommandSpecificStatus(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT8 commandSpecificStatus
 )
 {
@@ -8886,11 +8564,7 @@ VOID SntiMapCommandSpecificStatus(
  * @return VOID
  ******************************************************************************/
 VOID SntiMapMediaErrors(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT8 mediaError
 )
 {
@@ -8932,11 +8606,7 @@ VOID SntiMapMediaErrors(
  * @return VOID
  ******************************************************************************/
 VOID SntiMapInternalErrorStatus(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     SNTI_STATUS status
 )
 {
@@ -9089,11 +8759,7 @@ PVOID SntiAllocatePhysicallyContinguousBuffer(
 ******************************************************************************/
 SNTI_TRANSLATION_STATUS SntiValidateNacaSetting(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     )
 {
 
@@ -9124,9 +8790,7 @@ SNTI_TRANSLATION_STATUS SntiValidateNacaSetting(
     case SCSIOP_WRITE_DATA_BUFF:
     case SCSIOP_PERSISTENT_RESERVE_IN:
     case SCSIOP_PERSISTENT_RESERVE_OUT:
-#if (NTDDI_VERSION > NTDDI_WIN7)
     case SCSIOP_UNMAP:
-#endif
         offset = CDB_10_CONTROL_OFFSET;
         break;
 

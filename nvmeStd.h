@@ -462,11 +462,7 @@ typedef struct _START_STATE
     BOOLEAN resetDriven;
 
     /* If its a host driven reset we need the SRB */
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pResetSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK pResetSrb;
-#endif
 
     /*
      * After adapter had completed the Identify commands,
@@ -1075,9 +1071,7 @@ typedef struct _nvme_device_extension
         ULONG                       value;
     } originalVersion;
     BOOLEAN                         DeviceRemovedDuringIO;
-#if (NTDDI_VERSION > NTDDI_WIN7)
 	PVOID Timerhandle;
-#endif
 
 	/* host memory buffer config */
 	/* Host memory buffer discriptor list start physical address */
@@ -1111,11 +1105,7 @@ typedef struct _nvme_srb_extension
     PNVME_DEVICE_EXTENSION       pNvmeDevExt;
 
     /* Pointer back to SRB - NULL if internal I/O */
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK       pSrb;
-#else
-    PSTORAGE_REQUEST_BLOCK          pSrb;
-#endif
 
     /* Is this an ADMIN command or an NVM command */
     BOOLEAN                      forAdminQueue;
@@ -1258,11 +1248,7 @@ BOOLEAN NVMeReInitializeController(
 
 BOOLEAN NVMeResetController(
     __in PNVME_DEVICE_EXTENSION pAdapterExtension,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    __in PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 BOOLEAN NVMeEnumMsiMessages(
@@ -1480,11 +1466,7 @@ BOOLEAN NvmeAdapterReset(
 BOOLEAN NVMeRunningStartAttempt(
     PNVME_DEVICE_EXTENSION pAE,
     BOOLEAN resetDriven,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pResetSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pResetSrb
-#endif
 );
 
 VOID NVMeRunning(
@@ -1575,11 +1557,7 @@ BOOLEAN NVMeInitialize(
     __in PVOID AdapterExtension
 );
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
     HW_TIMER_EX IsDeviceRemoved;
-#else
-    HW_TIMER IsDeviceRemoved;
-#endif
 
 BOOLEAN NVMeStartIo(
     __in PVOID AdapterExtension,
@@ -1593,11 +1571,7 @@ BOOLEAN NVMeBuildIo(
 
 void NVMeStartIoProcessIoctl(
     __in PNVME_DEVICE_EXTENSION pAdapterExtension,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    __in PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 BOOLEAN NVMeIsrIntx(
@@ -1635,11 +1609,7 @@ VOID RecoveryDpcRoutine(
 VOID NVMeInitSrbExtension(
     PNVME_SRB_EXTENSION pSrbExt,
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 VOID NVMeIoctlHotRemoveNamespace(
@@ -1665,60 +1635,36 @@ BOOLEAN NVMeIoctlFormatNVMCallback(
 
 BOOLEAN NVMeIoctlFormatNVM(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 );
 
 
 BOOLEAN NVMeIoctlNamespaceMgmt(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-	PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 );
 
 BOOLEAN NVMeIoctlNamespaceAttachment(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
 	PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-	PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVME_PASS_THROUGH_IOCTL pNvmePtIoctl
 );
 
 BOOLEAN NVMeProcessIoctl(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 BOOLEAN NVMeProcessPublicIoctl(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 BOOLEAN NVMeProcessPrivateIoctl(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 BOOLEAN NVMeIoctlCallback(
@@ -1785,11 +1731,7 @@ VOID NVMeLogError(
 VOID IO_StorPortNotification(
     __in SCSI_NOTIFICATION_TYPE NotificationType,
     __in PVOID pHwDeviceExtension,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     __in PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    __in PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 #else
 #define IO_StorPortNotification StorPortNotification

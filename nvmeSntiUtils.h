@@ -49,7 +49,6 @@
 #define __SNTI_UTILS_H__
 
 /* MACROs to extrace infor from SRBs and CDBs */
-#if (NTDDI_VERSION > NTDDI_WIN7)
 #define GET_SRB_EXTENSION(pSrb)     (SrbGetMiniportContext((PVOID)pSrb))
 #define GET_OPCODE(pSrb)            (((PCDB)SrbGetCdb((PVOID)pSrb))->AsByte[0])
 #define GET_DATA_BUFFER(pSrb)       (SrbGetDataBuffer((PVOID)pSrb))
@@ -74,32 +73,6 @@
                                        (((PCDB)SrbGetCdb((PVOID)pSrb))->AsByte[index+1] << 16)| \
                                        (((PCDB)SrbGetCdb((PVOID)pSrb))->AsByte[index+2] << 8) | \
                                        (((PCDB)SrbGetCdb((PVOID)pSrb))->AsByte[index+3] << 0))
-#else
-#define GET_SRB_EXTENSION(pSrb)      (pSrb)->SrbExtension
-#define GET_OPCODE(pSrb)             (pSrb)->Cdb[0]
-#define GET_DATA_BUFFER(pSrb)        (pSrb)->DataBuffer
-#define GET_DATA_LENGTH(pSrb)        (pSrb)->DataTransferLength
-#define SET_DATA_LENGTH(pSrb, len)   ((pSrb)->DataTransferLength = len)
-#define GET_PATH_ID(pSrb)            (pSrb)->PathId
-#define GET_TARGET_ID(pSrb)          (pSrb)->TargetId
-#define GET_LUN_ID(pSrb)             (pSrb)->Lun
-#define GET_CDB_LENGTH(pSrb)         (pSrb)->CdbLength
-
-/* Extract fields from CDBs at offsets */
-#define GET_U8_FROM_CDB(pSrb, index)   ((pSrb)->Cdb[index] << 0)
-
-#define GET_U16_FROM_CDB(pSrb, index) (((pSrb)->Cdb[index]     <<  8) | \
-                                       ((pSrb)->Cdb[index + 1] <<  0))
-
-#define GET_U24_FROM_CDB(pSrb, index) (((pSrb)->Cdb[index] << 16)     | \
-                                       ((pSrb)->Cdb[index + 1] <<  8) | \
-                                       ((pSrb)->Cdb[index + 2] <<  0))
-
-#define GET_U32_FROM_CDB(pSrb, index) (((pSrb)->Cdb[index]     << 24) | \
-                                       ((pSrb)->Cdb[index + 1] << 16) | \
-                                       ((pSrb)->Cdb[index + 2] <<  8) | \
-                                       ((pSrb)->Cdb[index + 3] <<  0))
-#endif
 /* Inquiry Helper Macros */
 #define GET_INQ_EVPD_BIT(pSrb)                                          \
             ((GET_U8_FROM_CDB(pSrb, INQUIRY_EVPD_BYTE_OFFSET) &         \

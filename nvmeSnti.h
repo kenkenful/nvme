@@ -596,11 +596,7 @@ typedef struct _snti_t10_vid_descriptor
 
 SNTI_TRANSLATION_STATUS SntiTranslateCommand(
     PNVME_DEVICE_EXTENSION pAdapterExtension,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 BOOLEAN SntiCompletionCallbackRoutine(
@@ -615,36 +611,20 @@ BOOLEAN SntiMapCompletionStatus(
 /*** Private Interfaces ***/
 
 SNTI_TRANSLATION_STATUS SntiTranslateInquiry(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 VOID SntiTranslateSupportedVpdPages(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 VOID SntiTranslateUnitSerialPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVME_LUN_EXTENSION pLunExt
 );
 
 VOID SntiTranslateDeviceIdentificationPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 BOOLEAN SntiBuildIeeeRegExtDesc(
@@ -693,15 +673,10 @@ USHORT SntiConvertULLongToA(
 
 
 SNTI_TRANSLATION_STATUS SntiTranslateExtendedInquiryDataPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 VOID SntiTranslateBlockLimitsPage(
    PSTORAGE_REQUEST_BLOCK pSrb
 );
@@ -714,58 +689,33 @@ VOID SntiTranslateLogicalBlockProvisioningPage(
    PSTORAGE_REQUEST_BLOCK pSrb,
    PNVME_LUN_EXTENSION pLunExt
 );
-#endif
 
 
 VOID SntiTranslateStandardInquiryPage(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateReportLuns(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity10(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PUCHAR pResponseBuffer,
     PNVME_LUN_EXTENSION pLunExtension
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateReadCapacity16(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PUCHAR pResponseBuffer,
     PNVME_LUN_EXTENSION pLunExtension
 );
 SNTI_TRANSLATION_STATUS SntiTranslateWrite(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_STATUS SntiTranslateWrite6(
@@ -789,11 +739,7 @@ SNTI_STATUS SntiTranslateWrite16(
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateRead(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_STATUS SntiTranslateRead6(
@@ -817,46 +763,26 @@ SNTI_STATUS SntiTranslateRead16(
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateRequestSense(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateSecurityProtocol(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveIn(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 
 SNTI_TRANSLATION_STATUS SntiTranslatePersistentReserveOut(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 
 
 SNTI_TRANSLATION_STATUS SntiTranslateStartStopUnit(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTransitionPowerState(
@@ -867,7 +793,6 @@ SNTI_TRANSLATION_STATUS SntiTransitionPowerState(
 );
 
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
 SNTI_STATUS SntiValidateUnmapLbaAndLength(
     PNVME_LUN_EXTENSION pLunExt,
     PNVME_SRB_EXTENSION pSrbExt,
@@ -878,79 +803,42 @@ SNTI_STATUS SntiValidateUnmapLbaAndLength(
 SNTI_TRANSLATION_STATUS SntiTranslateUnmap(
     PSTORAGE_REQUEST_BLOCK pSrb
 );
-#endif
 
 
 SNTI_TRANSLATION_STATUS SntiTranslateWriteBuffer(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateSynchronizeCache(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateTestUnitReady(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateFormatUnit(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateLogSense(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 VOID SntiTranslateSupportedLogPages(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 VOID SntiTranslateTemperature(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 VOID SntiTranslateInfoExceptions(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateModeSense(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     BOOLEAN supportsVwc
 );
 
@@ -1001,11 +889,7 @@ SNTI_TRANSLATION_STATUS SntiReturnAllModePages(
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateModeSelect(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     BOOLEAN supportsVwc
 );
 
@@ -1044,11 +928,7 @@ SNTI_STATUS SntiValidateLbaAndLength(
 );
 
 BOOLEAN SntiSetScsiSenseData(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UCHAR scsiStatus,
     UCHAR senseKey,
     UCHAR asc,
@@ -1056,29 +936,17 @@ BOOLEAN SntiSetScsiSenseData(
 );
 
 VOID SntiMapGenericCommandStatus(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT8 genericCommandStatus
 );
 
 VOID SntiMapCommandSpecificStatus(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT8 commandSpecificStatus
 );
 
 VOID SntiMapMediaErrors(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT8 mediaError 
 );
 
@@ -1133,45 +1001,25 @@ VOID SntiBuildSecuritySendReceiveCmd(
 );
 
 VOID SntiMapInternalErrorStatus(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     SNTI_STATUS status
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateLogSenseResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslatePersReserveInResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     );
 
 SNTI_TRANSLATION_STATUS SntiTranslatePersReserveOutResponseOut(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     );
 
 SNTI_TRANSLATION_STATUS SntiBuildPersReserveRegisterCmd(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVME_SRB_EXTENSION pSrbExt,
     PNVME_LUN_EXTENSION pLunExt,
     PNVME_DEVICE_EXTENSION pDevExt,
@@ -1181,30 +1029,18 @@ SNTI_TRANSLATION_STATUS SntiBuildPersReserveRegisterCmd(
 
 
 SNTI_TRANSLATION_STATUS SntiTranslateInformationalExceptionsResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     UINT16 allocLength
 );
 
 SNTI_STATUS SntiTranslateTemperatureResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry,
     UINT16 allocLength
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateModeSenseResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb,
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb,
-#endif
     PNVMe_COMPLETION_QUEUE_ENTRY pCQEntry
 );
 
@@ -1225,19 +1061,11 @@ VOID SntiTranslateReturnAllModePagesResponse(
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateStartStopUnitResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 SNTI_TRANSLATION_STATUS SntiTranslateWriteBufferResponse(
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 );
 
 VOID SntiDpcRoutine(
@@ -1254,11 +1082,7 @@ PVOID SntiAllocatePhysicallyContinguousBuffer(
 
 SNTI_TRANSLATION_STATUS SntiValidateNacaSetting(
     PNVME_DEVICE_EXTENSION pDevExt,
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSTORAGE_REQUEST_BLOCK pSrb
-#else
-    PSTORAGE_REQUEST_BLOCK pSrb
-#endif
     );
 
 #endif /* __NVME_SNTI_H__ */

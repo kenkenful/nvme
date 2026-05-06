@@ -103,11 +103,7 @@ InitializeWmiContext(__in PNVME_DEVICE_EXTENSION pHbaExtension)
 VOID
 DispatchWmi(
 __in struct _nvme_device_extension* pDevExtension,
-#if (NTDDI_VERSION > NTDDI_WIN7)
 __in PSTORAGE_REQUEST_BLOCK pSrb
-#else
-__in PSTORAGE_REQUEST_BLOCK pSrb
-#endif
 )
 {
     PNVME_SRB_EXTENSION pSrbExtension = (PNVME_SRB_EXTENSION)GET_SRB_EXTENSION(pSrb);
@@ -115,12 +111,8 @@ __in PSTORAGE_REQUEST_BLOCK pSrb
     BOOLEAN pending = TRUE;
     BOOLEAN adapterRequest = TRUE;
 
-#if (NTDDI_VERSION > NTDDI_WIN7)
     PSRBEX_DATA_WMI pSrbWmi = (PSRBEX_DATA_WMI)SrbGetSrbExDataByType((PSTORAGE_REQUEST_BLOCK)pSrb,
         SrbExDataTypeWmi);
-#else
-    PSCSI_WMI_REQUEST_BLOCK pSrbWmi = (PSCSI_WMI_REQUEST_BLOCK)pSrb;
-#endif
 
     memset(pRequestContext, 0, sizeof(SCSIWMI_REQUEST_CONTEXT)); // Clear WMI context block.
 
